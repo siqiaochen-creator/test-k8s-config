@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ollama-qwen-30b-gpu
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       app: ollama-qwen-30b-gpu
@@ -17,15 +17,21 @@ spec:
       restartPolicy: Always
       containers:
         - name: ollama-qwen-30b-gpu
-          image: ollama/qwen-30b-gpu:latest
+          # Using the official image since the specific model image doesn't exist
+          image: ollama/ollama:latest
           ports:
             - containerPort: 8000
+          env:
+            - name: OLLAMA_HOST
+              value: "0.0.0.0:8000"
           resources:
             limits:
-              nvidia.com/gpu: 1  # request 1 GPU
-          env:
-            - name: MODEL_NAME
-              value: "qwen-30b"
-            - name: INFERENCE_PORT
-              value: "8000"
-          command: ["ollama", "serve", "--model", "qwen-30b", "--port", "8000"]
+              nvidia.com/gpu: 1  # Each pod takes 1 Blackwell card
+          # Software engineer fix: start server, pull model, then keep process alive
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              ollama serve &
+              sleep 10;
+              ollama pull qwen2.5:32b;
+              wait
