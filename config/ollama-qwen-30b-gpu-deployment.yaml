@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-qwen-30b-gpu
+  labels:
+    app: ollama-qwen-30b-gpu
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ollama-qwen-30b-gpu
+  template:
+    metadata:
+      labels:
+        app: ollama-qwen-30b-gpu
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: ollama-qwen-30b-gpu
+          image: ollama/qwen-30b-gpu:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1  # request 1 GPU
+          env:
+            - name: MODEL_NAME
+              value: "qwen-30b"
+            - name: INFERENCE_PORT
+              value: "8000"
+          command: ["ollama", "serve", "--model", "qwen-30b", "--port", "8000"]
