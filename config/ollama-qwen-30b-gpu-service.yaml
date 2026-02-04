@@ -10,4 +10,4 @@ spec:
     - protocol: TCP
       port: 8000         # container port
       targetPort: 8000   # container port
-      nodePort: 29000    # expose on node
+      nodePort: 31001    # expose on node
